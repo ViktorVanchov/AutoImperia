@@ -10,7 +10,7 @@ Run `python -m http.server 8000` in this folder, then open http://localhost:8000
 
 - Responsive editorial design, subtle animations, reduced-motion support.
 - Search, make/body/price filters, price/year sorting, saved favourites.
-- Vehicle detail dialogs and a local garage to add cars or mark them sold/available.
+- Vehicle detail dialogs and a local garage to add or edit cars, mark them sold/available, and remove cars with persistent undo.
 - Browser persistence with graceful handling of unavailable storage.
 - Keyboard-accessible native dialogs and labeled controls.
 

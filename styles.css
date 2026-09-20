@@ -3,3 +3,5 @@
 
 /* A compact closing action keeps the focus on the collection. */
 .sell{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 36px;margin-bottom:48px}.sell h2{margin:0;font-size:30px}.sell .button{margin:0;flex-shrink:0}@media(max-width:700px){.sell{padding:24px;margin-bottom:30px;gap:16px}.sell h2{font-size:24px}.sell .button{padding:13px 16px;gap:16px}}
+
+.garage-actions{display:flex;flex-wrap:wrap;gap:7px;flex-shrink:0}.garage-row>div:first-child{min-width:0;overflow-wrap:anywhere}.garage-row .remove-car{color:#a33b22}.garage-undo{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#e8e9e0;border-radius:4px;padding:13px;margin-top:22px;font-size:12px}.garage-undo button{flex-shrink:0;border:0;background:transparent;text-decoration:underline;padding:8px}.form-error{color:#a33b22;font-size:12px}.form-error:empty{display:none}@media(max-width:700px){.garage-row{flex-direction:column;align-items:stretch;gap:13px}.garage-actions button{flex:1;min-height:40px}.garage-undo{align-items:flex-start;flex-wrap:wrap}.form-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
