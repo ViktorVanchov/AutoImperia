@@ -5,7 +5,7 @@ const initialCars = [
  {id:'bmw',make:'BMW',model:'3 Series',trim:'320i M Sport · Made for the driver',year:2022,price:34750,mileage:38200,body:'Sedan',fuel:'Petrol',transmission:'Automatic',condition:'Used',image:photo('photo-1555215695-3004980ad54e')},
  {id:'audi',make:'Audi',model:'Q8',trim:'55 TFSI quattro · Room to explore',year:2024,price:78900,mileage:50,body:'SUV',fuel:'Hybrid',transmission:'Automatic',condition:'New',image:photo('photo-1606664515524-ed2f786a0bd6')},
  {id:'volvo',make:'Volvo',model:'XC60',trim:'B5 Plus · Scandinavian simplicity',year:2023,price:46500,mileage:27900,body:'SUV',fuel:'Hybrid',transmission:'Automatic',condition:'Used',image:photo('photo-1653637067868-25f861281cca')},
- {id:'vw',make:'Volkswagen',model:'Golf GTI',trim:'2.0 TSI · Everyday, elevated',year:2024,price:36900,mileage:80,body:'Hatchback',fuel:'Petrol',transmission:'Automatic',condition:'New',image:photo('photo-1625231334168-35067f8853ed')}
+ {id:'vw',make:'Volkswagen',model:'Golf GTI',trim:'2.0 TSI · Everyday, elevated',year:2024,price:36900,mileage:80,body:'Hatchback',fuel:'Petrol',transmission:'Automatic',condition:'New',image:photo('photo-1751079038497-0de0540a4546')}
 ];
 const $ = (s) => document.querySelector(s);
 const money = (n) => new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
@@ -15,6 +15,11 @@ const placeholder = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http
 function safeImage(url){try{const u=new URL(url);return u.protocol==='https:'?u.href:placeholder;}catch{return placeholder;}}
 let cars = initialCars.map(c=>({...c})), saved = [], condition='All';
 try {const state=JSON.parse(localStorage.getItem('autoimperia-v1'));if(state && Array.isArray(state.cars) && state.cars.every(c=>c && typeof c.id==='string' && typeof c.make==='string' && typeof c.model==='string' && Number.isFinite(c.price) && Number.isFinite(c.year) && Number.isFinite(c.mileage))){cars=state.cars;saved=Array.isArray(state.saved)?state.saved.filter(id=>typeof id==='string'):[];}} catch {}
+// Refresh the original demo photo without discarding saved cars or garage changes.
+const golf = cars.find(c => c.id === 'vw');
+if (golf && golf.image === photo('photo-1625231334168-35067f8853ed')) {
+ golf.image = initialCars.find(c => c.id === 'vw').image;
+}
 let toastTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
 function persist(){try{localStorage.setItem('autoimperia-v1',JSON.stringify({cars,saved}));return true;}catch{toast('Browser storage is unavailable. Changes will last for this session.');return false;}}
