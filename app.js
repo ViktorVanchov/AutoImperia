@@ -3,7 +3,7 @@ const initialCars = [
  {id:'porsche',make:'Porsche',model:'911 Carrera',trim:'3.0 PDK · A modern icon',year:2022,price:98500,mileage:18400,body:'Coupe',fuel:'Petrol',transmission:'Automatic',condition:'Used',image:photo('photo-1503376780353-7e6692767b70')},
  {id:'mercedes',make:'Mercedes-Benz',model:'C-Class',trim:'C 200 AMG Line · Effortlessly refined',year:2023,price:42900,mileage:22600,body:'Sedan',fuel:'Hybrid',transmission:'Automatic',condition:'Used',image:photo('photo-1618843479313-40f8afb4b4d8')},
  {id:'bmw',make:'BMW',model:'3 Series',trim:'320i M Sport · Made for the driver',year:2022,price:34750,mileage:38200,body:'Sedan',fuel:'Petrol',transmission:'Automatic',condition:'Used',image:photo('photo-1555215695-3004980ad54e')},
- {id:'audi',make:'Audi',model:'Q8',trim:'55 TFSI quattro · Room to explore',year:2024,price:78900,mileage:50,body:'SUV',fuel:'Hybrid',transmission:'Automatic',condition:'New',image:photo('photo-1606664515524-ed2f786a0bd6')},
+ {id:'audi',make:'Audi',model:'Q8',trim:'55 TFSI quattro · Room to explore',year:2024,price:78900,mileage:50,body:'SUV',fuel:'Hybrid',transmission:'Automatic',condition:'New',image:photo('photo-1655284615415-b52cb3c2f8aa')},
  {id:'volvo',make:'Volvo',model:'XC60',trim:'B5 Plus · Scandinavian simplicity',year:2023,price:46500,mileage:27900,body:'SUV',fuel:'Hybrid',transmission:'Automatic',condition:'Used',image:photo('photo-1653637067868-25f861281cca')},
  {id:'vw',make:'Volkswagen',model:'Golf GTI',trim:'2.0 TSI · Everyday, elevated',year:2024,price:36900,mileage:80,body:'Hatchback',fuel:'Petrol',transmission:'Automatic',condition:'New',image:photo('photo-1751079038497-0de0540a4546')}
 ];
@@ -19,6 +19,10 @@ try {const state=JSON.parse(localStorage.getItem('autoimperia-v1'));if(state && 
 const golf = cars.find(c => c.id === 'vw');
 if (golf && golf.image === photo('photo-1625231334168-35067f8853ed')) {
  golf.image = initialCars.find(c => c.id === 'vw').image;
+}
+const audi = cars.find(c => c.id === 'audi');
+if (audi && audi.image === photo('photo-1606664515524-ed2f786a0bd6')) {
+ audi.image = initialCars.find(c => c.id === 'audi').image;
 }
 let toastTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
