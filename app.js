@@ -30,7 +30,17 @@ function toast(message){$('#toast').textContent=message;$('#toast').classList.ad
 function persist(){try{localStorage.setItem('autoimperia-v1',JSON.stringify({cars,saved,removed}));return true;}catch{toast('Browser storage is unavailable. Changes will last for this session.');return false;}}
 function imageFallback(root=document){root.querySelectorAll('img').forEach(img=>{img.addEventListener('error',()=>{img.src=placeholder;},{once:true});});}
 function updateMakes(){const selected=$('#make').value;$('#make').innerHTML='<option value="">All makes</option>'+[...new Set(cars.map(c=>c.make))].sort().map(m=>`<option>${escapeHTML(m)}</option>`).join('');$('#make').value=[...new Set(cars.map(c=>c.make))].includes(selected)?selected:'';}
+function syncHeroImage(){
+ const car=cars[0],img=$('.hero-visual>img');
+ const source=car?safeImage(car.image):placeholder;
+ img.alt=car?`${car.make} ${car.model} — first garage listing`:'No cars in the garage';
+ if(img.getAttribute('src')!==source){
+  img.onerror=()=>{img.onerror=null;img.src=placeholder;};
+  img.src=source;
+ }
+}
 function render(){
+ syncHeroImage();
  const query=$('#search').value.trim().toLowerCase(),make=$('#make').value,body=$('#body').value,budget=Number($('#budget').value);
  let results=cars.filter(c=>(condition==='All'||condition==='Saved'&&saved.includes(c.id)||c.condition===condition)&&(!query||`${c.make} ${c.model} ${c.year}`.toLowerCase().includes(query))&&(!make||c.make===make)&&(!body||c.body===body)&&(!budget||c.price<=budget));
  const sort=$('#sort').value;if(sort==='low')results.sort((a,b)=>a.price-b.price);if(sort==='high')results.sort((a,b)=>b.price-a.price);if(sort==='newest')results.sort((a,b)=>b.year-a.year);
@@ -42,10 +52,59 @@ function render(){
 function toggleSaved(id){saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];const ok=persist();render();if(ok)toast(saved.includes(id)?'Added to your shortlist.':'Removed from your shortlist.');}
 function showDetails(id){const c=cars.find(x=>x.id===id);if(!c)return;$('#detail-content').innerHTML=`<img class="detail-photo" src="${escapeHTML(safeImage(c.image))}" alt="${escapeHTML(c.make+' '+c.model)} — illustrative photo"><div class="dialog-pad"><p class="eyebrow">${c.sold?'SOLD':escapeHTML(c.condition==='New'?'NEW ARRIVAL':'PRE-OWNED')} · ${escapeHTML(c.body)}</p><h2 id="detail-title">${escapeHTML(c.make+' '+c.model)}</h2><strong class="price">${money(c.price)}</strong><div class="detail-facts">${[['Year',c.year],['Mileage',number(c.mileage)+' km'],['Fuel',c.fuel],['Transmission',c.transmission],['Body style',c.body],['Availability',c.sold?'Sold':'Available']].map(([k,v])=>`<div><span>${k}</span><strong>${escapeHTML(v)}</strong></div>`).join('')}</div><p class="detail-description">${escapeHTML(c.description||'A car for the journey ahead. Explore the key specifications and save this car to your shortlist to compare it with your favourites.')}</p><div class="detail-actions"><button class="button dark" id="detail-save">${saved.includes(c.id)?'Remove from shortlist':'Save to shortlist'} <span>♡</span></button><button class="button outline" id="detail-garage">Manage in garage ↗</button></div><p class="muted" style="margin-top:20px;margin-bottom:0">Demo listing. Photos are illustrative; specifications and prices are sample data. No purchase or reservation is made here.</p></div>`;$('#detail-save').onclick=()=>{toggleSaved(id);$('#detail-save').innerHTML=`${saved.includes(id)?'Remove from shortlist':'Save to shortlist'} <span>♡</span>`;};$('#detail-garage').onclick=()=>{$('#details').close();openGarage();};imageFallback($('#details'));$('#details').showModal();}
 function renderGarage(){
- $('#garage-list').innerHTML=cars.length?cars.map(c=>`<div class="garage-row"><div><strong>${escapeHTML(c.make+' '+c.model)}</strong><p>${money(c.price)} · ${c.sold?'Sold':'Available'} · ${c.year}</p></div><div class="garage-actions"><button data-edit="${escapeHTML(c.id)}" aria-label="Edit ${escapeHTML(c.make+' '+c.model)}">Edit</button><button data-status="${escapeHTML(c.id)}">${c.sold?'Mark available':'Mark as sold'}</button><button class="remove-car" data-remove="${escapeHTML(c.id)}" aria-label="Remove ${escapeHTML(c.make+' '+c.model)}">Remove</button></div></div>`).join(''):'<p class="muted">Your garage is empty. Add a car to get started.</p>';
+ $('#garage-list').innerHTML=cars.length?cars.map(c=>`<div class="garage-row" data-car-id="${escapeHTML(c.id)}"><div class="garage-vehicle"><button class="drag-handle" type="button" aria-label="Reorder ${escapeHTML(c.make+' '+c.model)}" aria-describedby="garage-order-help" title="Drag to reorder; use arrow keys on the keyboard">⠿</button><div><strong>${escapeHTML(c.make+' '+c.model)}</strong><p>${money(c.price)} · ${c.sold?'Sold':'Available'} · ${c.year}</p></div></div><div class="garage-actions"><button data-edit="${escapeHTML(c.id)}" aria-label="Edit ${escapeHTML(c.make+' '+c.model)}">Edit</button><button data-status="${escapeHTML(c.id)}">${c.sold?'Mark available':'Mark as sold'}</button><button class="remove-car" data-remove="${escapeHTML(c.id)}" aria-label="Remove ${escapeHTML(c.make+' '+c.model)}">Remove</button></div></div>`).join(''):'<p class="muted">Your garage is empty. Add a car to get started.</p>';
  $('#garage-undo').hidden=!removed.length;
  $('#removed-message').textContent=removed.length?`${removed.at(-1).car.make} ${removed.at(-1).car.model} removed.`:'';
 }
+// The garage order is also the default collection order and the hero source.
+let garageDrag=null,garageDragFrame=null;
+function commitGarageOrder(focusId){
+ const byId=new Map(cars.map(car=>[car.id,car]));
+ cars=[...$('#garage-list').querySelectorAll('[data-car-id]')].map(row=>byId.get(row.dataset.carId));
+ const ok=persist();render();renderGarage();
+ const handle=[...$('#garage-list').querySelectorAll('[data-car-id]')].find(row=>row.dataset.carId===focusId)?.querySelector('.drag-handle');
+ handle?.focus({preventScroll:true});
+ $('#garage-order-status').textContent=ok?'Vehicle order saved. The first car supplies the landing image.':'Vehicle order updated for this session.';
+}
+function updateGarageDrag(){
+ if(!garageDrag)return;
+ const {row,y}=garageDrag,list=$('#garage-list'),dialog=$('#garage'),bounds=dialog.getBoundingClientRect();
+ if(y<bounds.top+65)dialog.scrollTop-=9;
+ else if(y>bounds.bottom-65)dialog.scrollTop+=9;
+ const next=[...list.querySelectorAll('[data-car-id]')].find(other=>other!==row&&y<other.getBoundingClientRect().top+other.getBoundingClientRect().height/2);
+ if(row.nextElementSibling!==(next||null))list.insertBefore(row,next||null);
+ garageDragFrame=requestAnimationFrame(updateGarageDrag);
+}
+$('#garage-list').addEventListener('pointerdown',e=>{
+ const handle=e.target.closest('.drag-handle');if(!handle||e.button!==0||garageDrag)return;
+ const row=handle.closest('[data-car-id]');
+ garageDrag={row,handle,pointerId:e.pointerId,y:e.clientY};
+ handle.setPointerCapture(e.pointerId);row.classList.add('is-dragging');
+ $('#garage-order-status').textContent='';
+ e.preventDefault();garageDragFrame=requestAnimationFrame(updateGarageDrag);
+});
+$('#garage-list').addEventListener('pointermove',e=>{
+ if(garageDrag&&garageDrag.pointerId===e.pointerId){garageDrag.y=e.clientY;e.preventDefault();}
+});
+function finishGarageDrag(e,cancelled=false){
+ if(!garageDrag||garageDrag.pointerId!==e.pointerId)return;
+ const {row,handle,pointerId}=garageDrag;
+ garageDrag=null;cancelAnimationFrame(garageDragFrame);
+ if(handle.hasPointerCapture(pointerId))handle.releasePointerCapture(pointerId);
+ row.classList.remove('is-dragging');
+ if(cancelled)renderGarage();else commitGarageOrder(row.dataset.carId);
+}
+$('#garage-list').addEventListener('pointerup',e=>finishGarageDrag(e));
+$('#garage-list').addEventListener('pointercancel',e=>finishGarageDrag(e,true));
+$('#garage-list').addEventListener('keydown',e=>{
+ const handle=e.target.closest('.drag-handle');if(!handle||!['ArrowUp','ArrowDown'].includes(e.key))return;
+ e.preventDefault();const row=handle.closest('[data-car-id]'),list=$('#garage-list');
+ const neighbor=e.key==='ArrowUp'?row.previousElementSibling:row.nextElementSibling;
+ if(!neighbor)return;
+ if(e.key==='ArrowUp')list.insertBefore(row,neighbor);else list.insertBefore(neighbor,row);
+ commitGarageOrder(row.dataset.carId);
+});
+$('#garage').addEventListener('close',()=>{if(garageDrag)finishGarageDrag({pointerId:garageDrag.pointerId},true);});
 function openGarage(){renderGarage();$('#garage').showModal();}
 function openListing(id=null){
  const c=typeof id==='string'?cars.find(c=>c.id===id):null;
