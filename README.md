@@ -34,7 +34,7 @@ Photography is loaded from Unsplash; typography from Google Fonts. Images are il
 | Requirement | Implementation |
 | --- | --- |
 | Basic company information | About section, speciality, location, values |
-| Team/employees | Three fictional staff profiles and roles |
+| Team/employees | Section removed at the project owner’s request |
 | Services | Buying, selling/trade-in, viewing/test-drive concepts |
 | Contact information | Demo location, reserved example email, sample hours, clearly unconfigured telephone |
 | Contact form | Required name/email/message, validation, acknowledgement, enquiry preview and text-file download; no server delivery |
