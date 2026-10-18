@@ -1,0 +1,5 @@
+services:
+  web:
+    build: .
+    cpus: 0.25
+    mem_limit: 128m

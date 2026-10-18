@@ -18,6 +18,10 @@ Run `python -m http.server 8000` in this folder, then open http://localhost:8000
 
 Publish the `main` branch root through GitHub Settings → Pages → Deploy from a branch. No custom domain or paid hosting is needed.
 
+### RepoRun
+
+The repository also includes `Dockerfile`, `docker-compose.yml`, and `stack.yml` for the university RepoRun platform. Configure the repository on branch `main`, with path `/`, then Validate and Deploy. The `web` service serves the site on port 8080 using unprivileged Nginx, limited to 0.25 CPU and 128 MB of memory. The primary `app` endpoint is public, matching the existing GitHub Pages site. RepoRun manages ingress, so no host ports or custom networks are configured.
+
 ## Scope
 
 This is a front-end demonstration, not a transactional dealership platform. Initial listings and prices are illustrative. Changes and saved cars are stored only in the current browser's localStorage; they do not update the public repository or other visitors. There is no authentication, backend, payment collection, reservation system, or enquiry delivery. For shared inventory, edit `initialCars` in `app.js` and publish the change, or add an authenticated backend before using this as a real dealership.
